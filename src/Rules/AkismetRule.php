@@ -17,6 +17,16 @@ class AkismetRule implements Rule
     protected $author;
 
     /**
+     * @var
+     */
+    protected $content;
+
+    /**
+     * @var
+     */
+    protected $type;
+
+    /**
      * Create a new rule instance.
      *
      * @param $email
@@ -24,10 +34,12 @@ class AkismetRule implements Rule
      *
      * @return void
      */
-    public function __construct($email, $author)
+    public function __construct($email, $author, $content = null, $type = 'registration')
     {
         $this->email = $email;
         $this->author = $author;
+        $this->content = $content;
+        $this->type = $type;
     }
 
     /**
@@ -44,7 +56,8 @@ class AkismetRule implements Rule
         if ($akismet->validateKey()) {
             $akismet->setCommentAuthor($this->author)
                 ->setCommentAuthorEmail($this->email)
-                ->setCommentType('registration');
+                ->setCommentContent($this->content)
+                ->setCommentType($this->type);
 
             return $akismet->isSpam() ? false : true;
         }
@@ -59,6 +72,6 @@ class AkismetRule implements Rule
      */
     public function message()
     {
-        return trans('akismet::akismet.it_is_currently_not_possible_to_register_with_your_specified_information_please_try_later_again');
+        return trans('akismet::akismet.' . $this->type);
     }
 }
